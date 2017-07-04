@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DABE3529-F466-4CA6-BE82-1DEC47D96A48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Incom.Web.RestClient", "src\Incom.Web.RestClient\Incom.Web.RestClient.csproj", "{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{3F2F9DA0-F048-4B6B-A463-CD93D15FE517}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinfriedApiConnectSample", "samples\WinfriedApiConnectSample\WinfriedApiConnectSample.csproj", "{36AEE111-2414-40CD-8F21-54BC6102C5DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78ACA018-D878-4F7C-BC1B-9FF29A0C498B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78ACA018-D878-4F7C-BC1B-9FF29A0C498B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78ACA018-D878-4F7C-BC1B-9FF29A0C498B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78ACA018-D878-4F7C-BC1B-9FF29A0C498B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36AEE111-2414-40CD-8F21-54BC6102C5DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36AEE111-2414-40CD-8F21-54BC6102C5DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36AEE111-2414-40CD-8F21-54BC6102C5DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36AEE111-2414-40CD-8F21-54BC6102C5DC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2239EFFD-C4D4-4EEA-81D8-924C37EAFF9C} = {DABE3529-F466-4CA6-BE82-1DEC47D96A48}
+		{78ACA018-D878-4F7C-BC1B-9FF29A0C498B} = {3F2F9DA0-F048-4B6B-A463-CD93D15FE517}
+		{36AEE111-2414-40CD-8F21-54BC6102C5DC} = {3F2F9DA0-F048-4B6B-A463-CD93D15FE517}
+	EndGlobalSection
+EndGlobal
