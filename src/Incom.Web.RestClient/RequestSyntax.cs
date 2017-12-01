@@ -194,8 +194,13 @@ namespace Incom.Web.RestClient
             {
                 HttpResponseMessage response = await client.PostAsync(apiEndpoint, Body);
                 string result = await response.Content.ReadAsStringAsync();
-
-                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NoContent)
+                
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    var error = await Task.Run(() => JsonConvert.DeserializeObject<InternalServerError>(result.ToString()));
+                    throw new RestApiException(error.Message, HttpStatusCode.InternalServerError);
+                }
+                else
                 {
                     var error = await Task.Run(() => JsonConvert.DeserializeObject<RestApiError>(result.ToString()));
                     throw new RestApiException(error.Message, (HttpStatusCode)error.Code);
@@ -209,6 +214,71 @@ namespace Incom.Web.RestClient
                 if (!context.IsHandled)
                     throw context.Error;
             }
+        }
+
+        /// <summary>
+        /// Führt eine POST-Anfrage auf dem Server aus.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public async Task<T> PostAsync<T>()
+        {
+            return (T)await PostAsync(typeof(T));
+        }
+
+        /// <summary>
+        /// Führt eine POST-Anfrage auf dem Server aus.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<object> PostAsync(Type type)
+        {
+            HttpClient client = await GetHttpClientAsync();
+            Uri apiEndpoint = ServerAddress;
+
+            try
+            {
+                HttpResponseMessage response = await client.PostAsync(apiEndpoint, Body);
+
+                bool resultIsByteArray = false;
+                object result = null;
+                if (type.IsArray && type.GetElementType() == typeof(byte))
+                {
+                    resultIsByteArray = true;
+                    result = await response.Content.ReadAsByteArrayAsync();
+                }
+                else
+                {
+                    result = await response.Content.ReadAsStringAsync();
+                }
+
+                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                {
+                    if (resultIsByteArray)
+                        return result;
+                    else
+                        return await Task.Run(() => JsonConvert.DeserializeObject(result.ToString(), type));
+                }
+                else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    var error = await Task.Run(() => JsonConvert.DeserializeObject<InternalServerError>(result.ToString()));
+                    throw new RestApiException(error.Message, HttpStatusCode.InternalServerError);
+                }
+                else
+                {
+                    var error = await Task.Run(() => JsonConvert.DeserializeObject<RestApiError>(result.ToString()));
+                    throw new RestApiException(error.Message, (HttpStatusCode)error.Code);
+                }
+            }
+            catch (Exception ex)
+            {
+                var context = new EndpointFailedContext(apiEndpoint, ex);
+                await RunEndpointEventsAsync(context);
+
+                if (!context.IsHandled)
+                    throw context.Error;
+            }
+
+            return null;
         }
 
         /// <summary>

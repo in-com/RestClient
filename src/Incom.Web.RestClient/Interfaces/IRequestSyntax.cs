@@ -28,6 +28,20 @@ namespace Incom.Web.RestClient
         Task PostAsync();
 
         /// <summary>
+        /// Führt eine POST-Anfrage auf dem Server aus.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        Task<T> PostAsync<T>();
+
+        /// <summary>
+        /// Führt eine GET-Anfrage auf dem Server aus.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        Task<object> PostAsync(Type type);
+
+        /// <summary>
         /// Führt eine PUT-Anfrage auf dem Server aus.
         /// </summary>
         /// <returns></returns>
