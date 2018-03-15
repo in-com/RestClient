@@ -22,56 +22,56 @@ namespace WindowsFormsApp1
 
             _client = new RestClient(options =>
             {
-                options.RestApiType = RestApiType.Terminplaner;
-                options.ServerAddress = "http://localhost:59027";
+                options.RestApiType = RestApiType.WinFriedSE;
+                options.ServerAddress = "http://localhost:62203";
                 options.Credentials = new ClientCredentials()
                 {
-                    ClientId = "0f3348f7cdf64ceaba6a74965804d2e9",
-                    ClientSecret = "EsnMT5J+7bJQMwWpNE8GfZYLDqEKAJQ9jgZIVSGBi8hLo+LbOsqZ8dEYy3JxZy1HrZB8gWLiM55CV6SAk7sfXw=="
+                    ClientId = "f4b4f1878fbc47ba92964e31f2da6528",
+                    ClientSecret = "foZva8tFWiMSEqVGmfkhdmVPLyKJGP4A1YuPUoS3uAtPkKvuyGercfGsmAOnUryTBih386zLjklLuV5iRkHA=="
                 };
-                options.SigningKey = new X509Certificate2(@"C:\Users\rklar\Desktop\incom.cer");
+                //options.SigningKey = new X509Certificate2(@"C:\Users\rklar\Desktop\incom.cer");
                 options.AuthenticationEvents = new AuthenticationEvents()
                 {
                     OnAuthorized = async (token) =>
                     {
                         var jupp = await _client.Request()
-                            .AppendPathSegment("events")
-                            .AppendPathSegment(4576)
-                            .GetAsync<Appointment>();
+                            .AppendPathSegment("hub")
+                            .AppendPathSegment("clients")
+                            .GetAsync<object>();
 
-                        var starttime = new DateTime(DateTime.Now.Ticks, DateTimeKind.Local);
-                        var endtime = new DateTime(starttime.AddMinutes(30).Ticks, DateTimeKind.Local);
+                        //var starttime = new DateTime(DateTime.Now.Ticks, DateTimeKind.Local);
+                        //var endtime = new DateTime(starttime.AddMinutes(30).Ticks, DateTimeKind.Local);
 
-                        var appointment = new AppointmentPost()
-                        {
-                            Starttime = new DateTimeOffset(starttime),
-                            Endtime = new DateTimeOffset(endtime),
-                            CalendarId = 1,
-                            SubjectId = 1,
-                            StatusId = 1
-                        };
+                        //var appointment = new AppointmentPost()
+                        //{
+                        //    Starttime = new DateTimeOffset(starttime),
+                        //    Endtime = new DateTimeOffset(endtime),
+                        //    CalendarId = 1,
+                        //    SubjectId = 1,
+                        //    StatusId = 1
+                        //};
 
-                        var block = new BlockPost()
-                        {
-                            Starttime = new DateTimeOffset(starttime),
-                            Endtime = new DateTimeOffset(endtime),
-                            CalendarId = "1",
-                            Description = "srhdthdtj"
-                        };
+                        //var block = new BlockPost()
+                        //{
+                        //    Starttime = new DateTimeOffset(starttime),
+                        //    Endtime = new DateTimeOffset(endtime),
+                        //    CalendarId = "1",
+                        //    Description = "srhdthdtj"
+                        //};
 
-                        //var newAppointment = await _client.Request()
-                        //    .AppendPathSegment("events")
-                        //    .AppendPathSegment("sync")
-                        //    .AppendPathSegment(0)
-                        //    .SetBody(appointment)
-                        //    .PostAsync<Appointment>();
+                        ////var newAppointment = await _client.Request()
+                        ////    .AppendPathSegment("events")
+                        ////    .AppendPathSegment("sync")
+                        ////    .AppendPathSegment(0)
+                        ////    .SetBody(appointment)
+                        ////    .PostAsync<Appointment>();
 
-                        await _client.Request()
-                            .AppendPathSegment("time")
-                            .AppendPathSegment("lock")
-                            .SetQueryParam("isSync", "true")
-                            .SetBody(block)
-                            .PostAsync();
+                        //await _client.Request()
+                        //    .AppendPathSegment("time")
+                        //    .AppendPathSegment("lock")
+                        //    .SetQueryParam("isSync", "true")
+                        //    .SetBody(block)
+                        //    .PostAsync();
                     },
                     OnAuthorizationFailed = (context) =>
                     {

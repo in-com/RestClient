@@ -56,7 +56,11 @@ namespace Incom.Web.RestClient
         public RequestSyntax(RestClient restClient)
         {
             _restClient = restClient;
-            ServerAddress = new Uri(_restClient._options.ServerAddress.TrimEnd('/') + "/api");
+
+            if (_restClient._authProvider.Options.RestApiType == RestApiType.WinFriedSE)
+                ServerAddress = new Uri(_restClient._options.ServerAddress.TrimEnd('/') + "/api/v1");
+            else
+                ServerAddress = new Uri(_restClient._options.ServerAddress.TrimEnd('/') + "/api");
         }
 
         #endregion
