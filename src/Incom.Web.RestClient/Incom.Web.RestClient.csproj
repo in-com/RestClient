@@ -8,13 +8,13 @@
     <PackageProjectUrl>https://www.in-com.de/</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>in-com;incom;webapi;restapi;winfriedse;terminplaner</PackageTags>
-    <PackageIconUrl>http://documentation.in-com.de/favicon-128-128.png</PackageIconUrl>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/11389790?v=3&amp;s=400</PackageIconUrl>
     <NeutralLanguage>de-DE</NeutralLanguage>
     <Copyright>in-com GmbH 2017</Copyright>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>1.2.1.0</AssemblyVersion>
-    <FileVersion>1.2.1.0</FileVersion>
+    <AssemblyVersion>1.2.2.0</AssemblyVersion>
+    <FileVersion>1.2.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

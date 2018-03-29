@@ -48,39 +48,34 @@ namespace Incom.Web.RestClient
             // Die Anfrage an den Server senden.
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateCredentials(credentials));
-
-                // Anfrage senden.
-                Uri tokenEndpoint = new Uri(new Uri(Options.ServerAddress), "oauth2/token");
-                var response = await client.PostAsync(Path.Combine(tokenEndpoint.AbsoluteUri), content);
-                var result = await response.Content.ReadAsStringAsync();
-
-                // Antwort verarbeiten.
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                try
                 {
-                    var token = await Task.Run(() => JsonConvert.DeserializeObject<Token>(result));
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateCredentials(credentials));
+
+                    Uri tokenEndpoint = new Uri(new Uri(Options.ServerAddress), "oauth2/token");
+                    var response = await client.PostAsync(Path.Combine(tokenEndpoint.AbsoluteUri), content);
+                    var token = await response.GetContentAsync<Token>();
 
                     if (Options.RestApiType == RestApiType.Terminplaner)
                     {
-                        try
-                        {
-                            Jose.JWT.Decode(token.AccessToken, Options.SigningKey.GetRSAPublicKey(), Jose.JwsAlgorithm.RS256);
-                            Validated(token);
-                        }
-                        catch (Exception ex)
-                        {
-                            Rejected(0, ex.Message);
-                        }
+                        Jose.JWT.Decode(token.AccessToken, Options.SigningKey.GetRSAPublicKey(), Jose.JwsAlgorithm.RS256);
+                        Validated(token);
                     }
                     else
                     {
                         Validated(token);
                     }
                 }
-                else
+                catch (RestApiException apiEx)
                 {
-                    var error = JsonConvert.DeserializeObject<RestApiError>(result);
-                    Rejected((HttpStatusCode)error.Code, error.Message);
+                    if (apiEx.Message.Contains("<title>401 - "))
+                        Rejected(apiEx.StatusCode, "Access is denied due to invalid credentials. \n\nMake sure that \"Basic Authentication\" is disabled on the IIS Server.");
+                    else
+                        Rejected(apiEx.StatusCode, apiEx.Message);
+                }
+                catch (Exception ex)
+                {
+                    Rejected(0, ex.Message);
                 }
             }
         }
