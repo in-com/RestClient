@@ -22,21 +22,20 @@ namespace WindowsFormsApp1
 
             _client = new RestClient(options =>
             {
-                options.RestApiType = RestApiType.WinFriedSE;
-                options.ServerAddress = "http://localhost:62203";
+                options.RestApiType = RestApiType.Terminplaner;
+                options.ServerAddress = "https://develop.in-com.de";
                 options.Credentials = new ClientCredentials()
                 {
-                    ClientId = "f4b4f1878fbc47ba92964e31f2da6528",
-                    ClientSecret = "foZva8tFWiMSEqVGmfkhdmVPLyKJGP4A1YuPUoS3uAtPkKvuyGercfGsmAOnUryTBih386zLjklLuV5iRkHA=="
+                    ClientId = "c7815a8f862d44a7a43107813f284fd9",
+                    ClientSecret = "bjRFTvfTTqNV4WuyK97Km6FwGoKZqZeZj2jaeIDVe74VN7Gy7+5YX3l+X9/VS6TV6F9JkHn1WSnEe45H3YTLmw=="
                 };
-                //options.SigningKey = new X509Certificate2(@"C:\Users\rklar\Desktop\incom.cer");
+                options.SigningKey = new X509Certificate2(@"C:\Users\René Klar\Desktop\incom.cer");
                 options.AuthenticationEvents = new AuthenticationEvents()
                 {
                     OnAuthorized = async (token) =>
                     {
                         var jupp = await _client.Request()
-                            .AppendPathSegment("hub")
-                            .AppendPathSegment("clients")
+                            .AppendPathSegment("labels")
                             .GetAsync<object>();
 
                         //var starttime = new DateTime(DateTime.Now.Ticks, DateTimeKind.Local);
