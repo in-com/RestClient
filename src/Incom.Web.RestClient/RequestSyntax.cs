@@ -437,9 +437,23 @@ namespace Incom.Web.RestClient
                             }
 
                             if (resultIsByteArray)
+                            {
                                 return result;
-                            else
+                            }
+                            else if (result != null && result.ToString().IsValidJson(out Exception jsonEx))
+                            {
                                 return await Task.Run(() => JsonConvert.DeserializeObject(result.ToString(), type));
+                            }
+                            else
+                            {
+                                var error = new RestApiError()
+                                {
+                                    Code = (int)response.StatusCode,
+                                    Message = result?.ToString()
+                                };
+
+                                throw new RestApiException(error.Message, (HttpStatusCode)error.Code);
+                            }
                         }
                         else
                         {
