@@ -142,7 +142,7 @@ namespace Incom.Web.RestClient
             try
             {
                 HttpResponseMessage response = await client.GetAsync(apiEndpoint);
-                await response.GetContentAsync(type);
+                return await response.GetContentAsync(type);
             }
             catch (Exception ex)
             {
