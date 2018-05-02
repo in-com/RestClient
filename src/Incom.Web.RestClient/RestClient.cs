@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Incom.Web.Models;
 using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Incom.Web.RestClient
 {
-    public class RestClient
+    public class RestClient : IRestClient
     {
         #region Fields
 
@@ -17,9 +14,45 @@ namespace Incom.Web.RestClient
         internal RestClientOptions _options;
 
         /// <summary>
-        /// Enthält die Instanz des <see cref="AuthenticationProvider"/>.
+        /// Enthält die Instanz des <see cref="AuthenticationProvider{TOptions}"/>.
         /// </summary>
-        internal AuthenticationProvider _authProvider;
+        internal AuthenticationProvider<RestClientOptions> _authProvider;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gibt die Optionen des Clients.
+        /// </summary>
+        public IRestClientOptions Options {
+            get
+            {
+                return _options;
+            }
+        }
+
+        /// <summary>
+        /// Gibt einen Wert der Angibt ob die Authorisierung am API-Server erfolgreich war.
+        /// </summary>
+        public bool IsValidated
+        {
+            get
+            {
+                return _authProvider.IsValidated;
+            }
+        }
+
+        /// <summary>
+        /// Gibt den <see cref="AuthenticationContext"/> der Verbindung.
+        /// </summary>
+        public AuthenticationContext Context
+        {
+            get
+            {
+                return _authProvider.Context;
+            }
+        }
 
         #endregion
 
@@ -62,29 +95,52 @@ namespace Incom.Web.RestClient
         {
             if (_authProvider == null)
             {
-                switch (_options.RestApiType)
-                {
-                    case RestApiType.WinFriedSE:
-                    case RestApiType.Terminplaner:
-                        _authProvider = new ClientCredentialsAuthenticationProvider(_options);
-                        break;
-                }
+                _authProvider = new ClientCredentialsAuthenticationProvider(_options);
             }
 
             // Am API-Server authentifizieren.
             await _authProvider.AuthorizeAsync();
-
-            // Authorization Events ausführen.
-            await RunAuthenticationEventsAsync();
         }
 
         /// <summary>
         /// Sendet eine Anfrage an den API-Server.
         /// </summary>
         /// <returns></returns>
-        public IRequestSyntax Request()
+        public IRequestSyntax Request(ApiEndpointVersion endpointVersion = ApiEndpointVersion.Version2)
         {
-            return new RequestSyntax(this);
+            return new RequestSyntax(this, endpointVersion);
+        }
+
+        /// <summary>
+        /// Setzt eine neue API Serveradresse.
+        /// </summary>
+        /// <param name="serverAddress">Die neue Adresse.</param>
+        public void SetServerAddress(string serverAddress)
+        {
+            if (string.IsNullOrWhiteSpace(serverAddress))
+                throw new ArgumentNullException(nameof(serverAddress));
+
+            _options.ServerAddress = serverAddress;
+        }
+
+        /// <summary>
+        /// Setzt neue <see cref="ClientCredentials"/>.
+        /// </summary>
+        /// <param name="clientId">Die neue ClientId.</param>
+        /// <param name="clientSecret">Das neue Client Secret.</param>
+        public void SetClientCredentials(string clientId, string clientSecret)
+        {
+            if (string.IsNullOrWhiteSpace(clientId))
+                throw new ArgumentNullException(nameof(clientId));
+
+            if (string.IsNullOrWhiteSpace(clientSecret))
+                throw new ArgumentNullException(nameof(clientSecret));
+
+            _options.Credentials = new ClientCredentials()
+            {
+                ClientId = clientId,
+                ClientSecret = clientSecret
+            };
         }
 
         #endregion
@@ -97,39 +153,13 @@ namespace Incom.Web.RestClient
         /// <param name="options"></param>
         private void ThrowIfInvalidOptions(RestClientOptions options)
         {
-            if (string.IsNullOrEmpty(options.ServerAddress))
+            if (string.IsNullOrWhiteSpace(options.ServerAddress))
                 throw new ArgumentNullException(nameof(RestClientOptions.ServerAddress));
 
             if (options.Credentials == null)
                 throw new ArgumentNullException(nameof(RestClientOptions.Credentials));
             else if (!options.Credentials.HasValue)
                 throw new ArgumentException(nameof(RestClientOptions.Credentials));
-
-            if (options.RestApiType == RestApiType.Terminplaner && options.SigningKey == null)
-                throw new ArgumentNullException("Wenn eine Verbindung mit der Terminplaner API hergestellt werden soll, muss ein SigningKey angegeben werden.", nameof(RestClientOptions.SigningKey));
-        }
-
-        /// <summary>
-        /// Wenn <see cref="AuthenticationEvents"/> angegeben sind, dann ausführen.
-        /// </summary>
-        /// <returns></returns>
-        private async Task RunAuthenticationEventsAsync()
-        {
-            if (_authProvider.IsValidated)
-            {
-                await _options.DataStore.StoreAsync(_options.Credentials.GetCredentials().Key, _authProvider.AccessToken);
-                if (_options.AuthenticationEvents?.OnAuthorized != null)
-                    await _options.AuthenticationEvents.OnAuthorized(_authProvider.AccessToken);
-            }
-            else
-            {
-                var context = new AuthenticationFailedContext(_options.ServerAddress, _authProvider.Error);
-                if (_options.AuthenticationEvents?.OnAuthorizationFailed != null)
-                    await _options.AuthenticationEvents.OnAuthorizationFailed(context);
-
-                if (!context.IsHandled)
-                    throw _authProvider.Error;
-            }
         }
 
         #endregion

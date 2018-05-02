@@ -1,28 +1,25 @@
-﻿using Incom.Web.Models;
-using Newtonsoft.Json;
+﻿using Incom.Web.HubClient.Models;
+using Incom.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Incom.Web.RestClient
+namespace Incom.Web.HubClient
 {
-    public class ClientCredentialsAuthenticationProvider : AuthenticationProvider<RestClientOptions>
+    public class HubCredentialsAuthenticationProvider : AuthenticationProvider<HubClientOptions>
     {
         #region Ctor
 
         /// <summary>
-        /// Initialisiert eine neue Instanz der <see cref="ClientCredentialsAuthenticationProvider"/> Klasse.
+        /// Initialisiert eine neue Instanz der <see cref="HubCredentialsAuthenticationProvider"/> Klasse.
         /// </summary>
         /// <param name="options"></param>
-        public ClientCredentialsAuthenticationProvider(RestClientOptions options)
+        public HubCredentialsAuthenticationProvider(HubClientOptions options)
             : base(options)
         {
         }
@@ -42,12 +39,18 @@ namespace Incom.Web.RestClient
             // Parameter für die Anfrage.
             var pairs = new List<KeyValuePair<string, string>>
                         {
-                            new KeyValuePair<string, string>("grant_type", "client_credentials"),
+                            new KeyValuePair<string, string>("grant_type", "hub_credentials"),
                         };
             var content = new FormUrlEncodedContent(pairs);
 
+            CookieContainer cookies = new CookieContainer();
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                CookieContainer = cookies
+            };
+
             // Die Anfrage an den Server senden.
-            using (var client = new HttpClient())
+            using (var client = new HttpClient(handler))
             {
                 try
                 {
@@ -55,8 +58,10 @@ namespace Incom.Web.RestClient
 
                     Uri tokenEndpoint = new Uri(new Uri(Options.ServerAddress), "oauth2/token");
                     var response = await client.PostAsync(Path.Combine(tokenEndpoint.AbsoluteUri), content);
+                    var result = await response.Content.ReadAsStringAsync();
                     var token = await response.GetContentAsync<Token>();
-                    Validated(token);
+                    var responseCookies = await response.GetCookiesAsync(cookies);
+                    Validated(token, responseCookies);
                 }
                 catch (RestApiException apiEx)
                 {
@@ -95,7 +100,6 @@ namespace Incom.Web.RestClient
         {
             if (IsValidated)
             {
-                await Options.DataStore.StoreAsync(Options.Credentials.GetCredentials().Key, Context.AccessToken);
                 if (Options.AuthenticationEvents?.OnAuthorized != null)
                     await Options.AuthenticationEvents.OnAuthorized(Context);
             }

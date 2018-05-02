@@ -6,12 +6,12 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Incom.Web.RestClient
+namespace Incom.Web.RestCalendarClient
 {
     /// <summary>
-    /// Definiert alle möglichen Optionen des <see cref="RestClient"/>.
+    /// Definiert alle möglichen Optionen des <see cref="RestCalendarClient"/>.
     /// </summary>
-    public class RestClientOptions : IRestClientOptions
+    public class RestCalendarClientOptions : IRestClientOptions
     {
         /// <summary>
         /// Gibt oder Setzt die REST-API Server Adresse.
@@ -22,6 +22,11 @@ namespace Incom.Web.RestClient
         /// Gibt oder Setzt die Zugangsdaten.
         /// </summary>
         public ICredentials Credentials { get; set; }
+
+        /// <summary>
+        /// Gibt oder setzt den PublicKey zum verifizieren der Signatur eines ID Tokens.
+        /// </summary>
+        public X509Certificate2 SigningKey { get; set; }
 
         /// <summary>
         /// Gibt oder setzt Events die, wenn zugewiesen, ausgeführt werden.
