@@ -12,9 +12,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Incom.Web.RestClient
+namespace Incom.Web.RestCalendarClient
 {
-    public class ClientCredentialsAuthenticationProvider : AuthenticationProvider<RestClientOptions>
+    public class ClientCredentialsAuthenticationProvider : AuthenticationProvider<RestCalendarClientOptions>
     {
         #region Ctor
 
@@ -22,7 +22,7 @@ namespace Incom.Web.RestClient
         /// Initialisiert eine neue Instanz der <see cref="ClientCredentialsAuthenticationProvider"/> Klasse.
         /// </summary>
         /// <param name="options"></param>
-        public ClientCredentialsAuthenticationProvider(RestClientOptions options)
+        public ClientCredentialsAuthenticationProvider(RestCalendarClientOptions options)
             : base(options)
         {
         }
@@ -56,6 +56,7 @@ namespace Incom.Web.RestClient
                     Uri tokenEndpoint = new Uri(new Uri(Options.ServerAddress), "oauth2/token");
                     var response = await client.PostAsync(Path.Combine(tokenEndpoint.AbsoluteUri), content);
                     var token = await response.GetContentAsync<Token>();
+                    Jose.JWT.Decode(token.AccessToken, Options.SigningKey.GetRSAPublicKey(), Jose.JwsAlgorithm.RS256);
                     Validated(token);
                 }
                 catch (RestApiException apiEx)
@@ -69,10 +70,6 @@ namespace Incom.Web.RestClient
                 {
                     Rejected(0, ex.Message);
                 }
-                finally
-                {
-                    await RunAuthenticationEventsAsync();
-                }
             }
         }
 
@@ -85,29 +82,6 @@ namespace Incom.Web.RestClient
             string clientid = credentials.Key;
             string clientSecret = credentials.Value;
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(clientid + ":" + clientSecret));
-        }
-
-        /// <summary>
-        /// Wenn <see cref="AuthenticationEvents"/> angegeben sind, dann ausführen.
-        /// </summary>
-        /// <returns></returns>
-        private async Task RunAuthenticationEventsAsync()
-        {
-            if (IsValidated)
-            {
-                await Options.DataStore.StoreAsync(Options.Credentials.GetCredentials().Key, Context.AccessToken);
-                if (Options.AuthenticationEvents?.OnAuthorized != null)
-                    await Options.AuthenticationEvents.OnAuthorized(Context);
-            }
-            else
-            {
-                var context = new AuthenticationFailedContext(Options.ServerAddress, Error);
-                if (Options.AuthenticationEvents?.OnAuthorizationFailed != null)
-                    await Options.AuthenticationEvents.OnAuthorizationFailed(context);
-
-                if (!context.IsHandled)
-                    throw Error;
-            }
         }
 
         #endregion
