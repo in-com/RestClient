@@ -20,6 +20,9 @@ Der Client kann via Nuget Package installiert werden.
 Install-Package Incom.Web.HubClient
 ```
 
+# RestCalendarClient
+Ist ein Client speziell für den Terminplaner der Firma in-com. Dieser wird in Zukunft fertiggestellt.
+
 # Dokumentation
 Für weitere Infos siehe unsere [Dokumetation](http://documentation.in-com.de/x/CQAM).
 
