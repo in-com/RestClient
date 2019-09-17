@@ -108,6 +108,9 @@ namespace Incom.Web.HubClient
                 if (Options.HubEvents?.OnMessage != null)
                     Hub.On<string>(nameof(Options.HubEvents.OnMessage), async (message) => await Options.HubEvents.OnMessage(message));
 
+                if (Options.HubEvents?.OnGraveInformation != null)
+                    Hub.On<IEnumerable<Grab>>(nameof(Options.HubEvents.OnGraveInformation), async (gräber) => await Options.HubEvents.OnGraveInformation(gräber));
+
                 if (Options.HubEvents?.OnGraveDataReceived != null)
                     Hub.On<IEnumerable<Grab>>(nameof(Options.HubEvents.OnGraveDataReceived), async (gräber) => await Options.HubEvents.OnGraveDataReceived(gräber));
 
